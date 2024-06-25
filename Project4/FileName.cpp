@@ -1,108 +1,120 @@
-#include<iostream>
+#include <iostream>
+#include <string>
+
 using namespace std;
 
-class Car
-{
-	char* model;
-	int year;
-	double price;
+class printer {
+	string * mas;
+	string * statistics;
+	int maxsize;
+	int lenth;
 public:
-	Car()
-	{
-		model = nullptr;
-		year = 0;
-		price = 0.0;
-	}
-	Car(const char* mod)
-	{
-		model = new char[strlen(mod) + 1];
-		strcpy_s(model, strlen(mod) + 1, mod);
-	}
-	Car(const char* mod, int y, double pr) : Car(mod)  // делегирование
-	{
-		year = y;
-		price = pr;
-	}
-	Car(const Car& obj) = delete;
-
-	Car& operator=(const Car& obj) = delete;
-	~Car() // 3
-	{
-		delete[]model;
+	printer() {
+		mas = nullptr;
+		statistics = nullptr;
+		maxsize = 20;
+		lenth = 0;
 	}
 
-	const char* getModel()
+	printer(int m)
 	{
-		return model;
-	}
-	int GetYear()
-	{
-		return year;
-	}
-	double GetPrice()
-	{
-		return price;
+		//получаем размер
+		maxsize = m;
+		//создаем очередь
+		string mas = new char[maxsize];
+		string statistics = new char[maxsize];
+		// »значально очередь пуста
+		lenth = 0;
 	}
 
-	void SetModel(const char* mod)
+	bool IsEmpty()
 	{
-		if (model != nullptr)
-			delete[] model;
-		model = new char[strlen(mod) + 1];
-		strcpy_s(model, strlen(mod) + 1, mod);
-	}
-	void SetYear(int y)
-	{
-		year = y;
-	}
-	void SetPrice(double pr)
-	{
-		price = pr;
+		// ѕуст?
+		return lenth == 0;
 	}
 
-
-	Car(Car&& b) // move semantics  (семантика переноса) конструктор переноса
+	string Extract()
 	{
-		cout << "Move Constructor\n";
-		model = b.model;
-		b.model = nullptr; //  оставл€ем указатель внутри B, в согласованном состо€нии(например дл€ вызова деструктора)
-		year = b.year;
-		b.year = 0;
-		price = b.price;
-		b.price = 0;
+		// ≈сли в очереди есть элементы, то возвращаем тот, 
+		// который вошел первым и сдвигаем очередь	
+		if (!IsEmpty())
+		{
+			//запомнить первый
+			string temp = mas[0];
+			string sttemp = statistics[0];
+
+
+			//сдвинуть все элементы
+			for (int i = 1; i < lenth; i++)
+				mas[i - 1] = mas[i];
+
+			for (int i = 1; i < lenth; i++)
+				sttemp[i - 1] = sttemp[i];
+
+			//уменьшить количество
+			lenth--;
+
+			//вернуть первый(нулевой)
+			return (temp, sttemp);
+		}
+
+		else // ≈сли в стеке элементов нет
+			return "Empty";
+	}
+
+	void Clear()
+	{
+		// Ёффективна€ "очистка" очереди 
+		lenth = 0;
+	}
+
+	bool IsFull()
+	{
+		// ѕолон?
+		return lenth == maxsize;
+	}
+
+	int GetCount()
+	{
+		//  оличество присутствующих в стеке элементов
+		return lenth;
+	}
+
+	void Add(string c, string name)
+	{
+		// ≈сли в очереди есть свободное место, то увеличиваем количество
+		// значений и вставл€ем новый элемент
+		if (!IsFull()) {
+			mas[lenth++] = c;
+
+			/*char date[50] = {};
+
+			time_t unixTime = time(nullptr);
+
+			ctime_s(date, sizeof(date) / sizeof(date[0]), &unixTime);*/
+
+			statistics[lenth++] = name;
+		
+		}
+	}
+
+	void Print() {
+		for (int i = 0; i < lenth; i++) {
+			cout << mas[i] << " - " << statistics[i] << endl;
+		}
+	}
+
+	~printer() {
+		delete[] mas;
+		delete[] statistics;
 	}
 };
-ostream& operator<<(ostream& os, Car& obj)
-{
-	os << obj.getModel() << "\t" << obj.GetYear() << "\t" << obj.GetPrice() << endl;
-	return os;
-}
-istream& operator>>(istream& is, Car& obj)
-{
-	char buff[20];
-	cout << "Enter model -> ";
-	is >> buff;
-	obj.SetModel(buff);
-	int y;
-	double pr;
-	cout << "Enter year -> ";
-	is >> y;
-	obj.SetYear(y);
-	cout << "Enter price -> ";
-	is >> pr;
-	obj.SetPrice(pr);
-	return is;
-}
 
-int main()
-{
-	Car obj1("Audi A5", 2023, 50000);
 
-	Car obj2 = move(obj1);
+int main() {
+	printer obj1;
 
-	if (obj1.getModel() == nullptr) {
-		cout << "obj1 nullptr";
-	}
+	obj1.Add("HELLO", "Ivan");
 
-	cout << endl << obj2;
+	obj1.Print();
 }
