@@ -1,120 +1,190 @@
 #include <iostream>
-#include <string>
-
 using namespace std;
 
-class printer {
-	string * mas;
-	string * statistics;
-	int maxsize;
-	int lenth;
-public:
-	printer() {
-		mas = nullptr;
-		statistics = nullptr;
-		maxsize = 20;
-		lenth = 0;
-	}
 
-	printer(int m)
-	{
-		//получаем размер
-		maxsize = m;
-		//создаем очередь
-		string mas = new char[maxsize];
-		string statistics = new char[maxsize];
-		// Изначально очередь пуста
-		lenth = 0;
-	}
-
-	bool IsEmpty()
-	{
-		// Пуст?
-		return lenth == 0;
-	}
-
-	string Extract()
-	{
-		// Если в очереди есть элементы, то возвращаем тот, 
-		// который вошел первым и сдвигаем очередь	
-		if (!IsEmpty())
-		{
-			//запомнить первый
-			string temp = mas[0];
-			string sttemp = statistics[0];
-
-
-			//сдвинуть все элементы
-			for (int i = 1; i < lenth; i++)
-				mas[i - 1] = mas[i];
-
-			for (int i = 1; i < lenth; i++)
-				sttemp[i - 1] = sttemp[i];
-
-			//уменьшить количество
-			lenth--;
-
-			//вернуть первый(нулевой)
-			return (temp, sttemp);
-		}
-
-		else // Если в стеке элементов нет
-			return "Empty";
-	}
-
-	void Clear()
-	{
-		// Эффективная "очистка" очереди 
-		lenth = 0;
-	}
-
-	bool IsFull()
-	{
-		// Полон?
-		return lenth == maxsize;
-	}
-
-	int GetCount()
-	{
-		// Количество присутствующих в стеке элементов
-		return lenth;
-	}
-
-	void Add(string c, string name)
-	{
-		// Если в очереди есть свободное место, то увеличиваем количество
-		// значений и вставляем новый элемент
-		if (!IsFull()) {
-			mas[lenth++] = c;
-
-			/*char date[50] = {};
-
-			time_t unixTime = time(nullptr);
-
-			ctime_s(date, sizeof(date) / sizeof(date[0]), &unixTime);*/
-
-			statistics[lenth++] = name;
-		
-		}
-	}
-
-	void Print() {
-		for (int i = 0; i < lenth; i++) {
-			cout << mas[i] << " - " << statistics[i] << endl;
-		}
-	}
-
-	~printer() {
-		delete[] mas;
-		delete[] statistics;
-	}
+struct Element
+{
+    // Данные
+    char data;
+    // Адрес следующего элемента списка
+    Element* Next;
 };
 
+// Односвязный список
+class List
+{
+    // Адрес головного элемента списка
+    Element* Head;
+    // Адрес головного элемента списка
+    Element* Tail;
+    // Количество элементов списка
+    int Count;
 
-int main() {
-	printer obj1;
+public:
+    // Конструктор
+    List();
+    // Деструктор
+    ~List();
 
-	obj1.Add("HELLO", "Ivan");
+    // Добавление элемента в список
+    // (Новый элемент становится последним)
+    void Add(char data);
 
-	obj1.Print();
+    // Удаление элемента списка
+    // (Удаляется головной элемент)
+    void Del();
+    // Удаление всего списка
+    void DelAll();
+
+    void Addindex(char c, int num) {
+        int i = 1;
+        Element* temp = Head;
+        while (i < num)
+        {
+            temp = temp->Next;
+            i++;
+        }
+        Element* nElement = new Element;
+        nElement->data = c;
+
+        nElement->Next = temp->Next;
+        temp->Next = nElement;
+    }
+
+    void Delindex(int num) {
+        int i = 1;
+        Element* temp = Head;
+        Element* del;
+        while (i < num)
+        {
+            temp = temp->Next; 
+            i++;
+            
+        }
+        
+        del = temp->Next;
+
+        temp->Next = del -> Next;
+        delete del;
+
+    }
+
+    void Search(char c) {
+        
+        Element* temp = Head;
+        int index = 0;
+        while (true) {
+            if (temp->data == c) {
+                cout << "data: " << temp->data << "  index: " << index << endl;
+                break;
+            }
+            else {
+                temp = temp->Next;
+                index++;
+                continue;
+            }
+            
+        }
+    }
+
+    // Распечатка содержимого списка
+    // (Распечатка начинается с головного элемента)
+    void Print();
+
+    // Получение количества элементов, находящихся в списке
+    int GetCount();
+};
+
+List::List()
+{
+    // Изначально список пуст
+    Head = Tail = NULL;
+    Count = 0;
+}
+
+List::~List()
+{
+    // Вызов функции удаления
+    DelAll();
+}
+
+int List::GetCount()
+{
+    // Возвращаем количество элементов
+    return Count;
+}
+
+void List::Add(char data)
+{
+    // создание нового элемента
+    Element* temp = new Element;
+
+    // заполнение данными
+    temp->data = data;
+    // следующий элемент отсутствует
+    temp->Next = NULL;
+    // новый элемент становится последним элементом списка
+    // если он не первый добавленный
+    if (Head != NULL) {
+        Tail->Next = temp;
+        Tail = temp;
+    }
+    // новый элемент становится единственным
+    // если он первый добавленный
+    else {
+        Head = Tail = temp;
+    }
+}
+
+void List::Del()
+{
+    // запоминаем адрес головного элемента
+    Element* temp = Head;
+    // перебрасываем голову на следующий элемент
+    Head = Head->Next;
+    // удаляем бывший головной элемент
+    delete temp;
+}
+
+void List::DelAll()
+{
+    // Пока еще есть элементы
+    while (Head != 0)
+        // Удаляем элементы по одному
+        Del();
+}
+
+void List::Print()
+{
+    // запоминаем адрес головного элемента
+    Element* temp = Head;
+    // Пока еще есть элементы
+    while (temp != 0)
+    {
+        // Выводим данные
+        cout << temp->data << " ";
+        // Переходим на следующий элемент
+        temp = temp->Next;
+    }
+
+    cout << "\n\n";
+}
+
+
+
+// Тестовый пример
+void main()
+{
+    // Создаем объект класса List
+    List lst;
+
+    lst.Add('H');
+    lst.Add('e');
+    lst.Add('l');
+    lst.Add('l');
+    lst.Add('o');
+    lst.Addindex('X', 2);
+    lst.Delindex(2);
+    lst.Print();
+    lst.Search('l');
 }
